@@ -1,0 +1,42 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        VARIANT: 2.6
+        # [Choice] Install Node.js
+        INSTALL_NODE: "true"
+        NODE_VERSION: "lts/*"
+        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
+        USER_UID: 1000
+        USER_GID: 1000
+
+    volumes:
+      - ..:/workspace:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:db
+
+    # Uncomment the next line to use a non-root user for all processes.
+    user: vscode
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "13306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: vscode
+      MYSQL_DATABASE: bootcamp_development
+volumes:
+    db_data:
